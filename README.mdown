@@ -1,0 +1,8 @@
+Version 1.0 of a GitHub Trello integration that hopefully will help give a better overlook of open pull requests and their statuses.
+
+Built to make my (QA) workflow easier so if cards are created/moved to and from Approved, On Hold or Open on Trello is based on labels, mainly the On Hold and QA OK labels that we use on GitHub.
+
+Will be run manually to start with. Goal is to clean it up and move it to a micro service where it will run every 5 minutes or so.
+
+Posts to this Trello board:
+https://trello.com/b/4J2f2euw/pull-requests

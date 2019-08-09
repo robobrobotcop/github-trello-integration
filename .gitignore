@@ -1,0 +1,7 @@
+billo_output_config.py
+pr_config.py
+invoice_from_csv_config.py
+script_settings.py
+*.DS_Store
+*.pyc
+.pylintrc
