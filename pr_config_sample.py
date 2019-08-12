@@ -10,5 +10,5 @@ trello_open = ''
 trello_onhold = ''
 trello_approved = ''
 
-# Input part of or the entire repo name of repos you want to ignore, example 'library' to ignore all repos that has 'library in it's name
+# Input part of or the entire repo name of repos you want to ignore, example 'library' to ignore all repos that has 'library' in it's name
 blacklist = []
