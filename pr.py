@@ -54,6 +54,9 @@ def main():
         if any([x in pr['repository']['name'] for x in pr_config.blacklist]):
             continue
 
+        elif 'pull_request' not in pr:
+            continue
+
         else:
             # see if the PR already exists on Trello
             # if they do, check label and move to correct list if changed, else do nothing
