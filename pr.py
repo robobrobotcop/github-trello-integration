@@ -156,6 +156,10 @@ def main():
 
                         response = requests.post('{}/cards'.format(trello_url), params=payload)
 
+                    # if new PR with label dependencies, ignore PR
+                    elif 'dependencies' in labels:
+                        continue
+
                     # if new PR with label on hold, create card on on hold
                     elif 'ON HOLD' in labels:
                         payload = {
