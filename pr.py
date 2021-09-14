@@ -22,17 +22,17 @@ def main():
     response = requests.get('{}/lists/{}/cards'.format(trello_url, trello_open), params={'fields': 'all', 'key': trello_key, 'token': trello_token})
     response_object = json.loads(response.text)
     for card in response_object:
-        ids_open[int(card['desc'])] = card['id']
+        ids_open[str(card['desc'])] = card['id']
 
     response = requests.get('{}/lists/{}/cards'.format(trello_url, trello_onhold), params={'fields': 'all', 'key': trello_key, 'token': trello_token})
     response_object = json.loads(response.text)
     for card in response_object:
-        ids_onhold[int(card['desc'])] = card['id']
+        ids_onhold[str(card['desc'])] = card['id']
 
     response = requests.get('{}/lists/{}/cards'.format(trello_url, trello_approved), params={'fields': 'all', 'key': trello_key, 'token': trello_token})
     response_object = json.loads(response.text)
     for card in response_object:
-        ids_approved[int(card['desc'])] = card['id']
+        ids_approved[str(card['desc'])] = card['id']
 
 
     # find all relevant PRs
