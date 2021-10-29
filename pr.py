@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import requests
 import pr_config
@@ -10,15 +11,22 @@ def main():
     trello_url = 'https://api.trello.com/1'
     trello_key = pr_config.trello_key
     trello_token = pr_config.trello_token
+    trello_draft = pr_config.trello_draft
     trello_open = pr_config.trello_open
     trello_onhold = pr_config.trello_onhold
     trello_approved = pr_config.trello_approved
 
+    ids_draft = {}
     ids_open = {}
     ids_onhold = {}
     ids_approved = {}
 
     # get all existing trello cards and their GitHub id
+    response = requests.get('{}/lists/{}/cards'.format(trello_url, trello_draft), params={'fields': 'all', 'key': trello_key, 'token': trello_token})
+    response_object = json.loads(response.text)
+    for card in response_object:
+        ids_draft[int(card['desc'])] = card['id']
+
     response = requests.get('{}/lists/{}/cards'.format(trello_url, trello_open), params={'fields': 'all', 'key': trello_key, 'token': trello_token})
     response_object = json.loads(response.text)
     for card in response_object:
@@ -77,9 +85,36 @@ def main():
                         # move to on hold, remove from prev list
                         requests.put('{}/cards/{}/idList'.format(trello_url, ids_open[pr['id']], ), params={'value': trello_onhold, 'key': trello_key, 'token': trello_token})
 
+                    elif 'DRAFT' in labels:
+                        # move to draft, remove from prev list
+                        requests.put('{}/cards/{}/idList'.format(trello_url, ids_open[pr['id']], ), params={'value': trello_draft, 'key': trello_key, 'token': trello_token})
+
                     else:
                         continue
 
+            elif pr['id'] in ids_draft:
+                if not pr['labels']:
+                    # move to open, remove from prev board
+                    requests.put('{}/cards/{}/idList'.format(trello_url, ids_draft[pr['id']], ), params={'value': trello_open, 'key': trello_key, 'token': trello_token})
+                else:
+                    labels = []
+                    for label in pr['labels']:
+                        labels.append(label['name'])
+
+                    if 'DRAFT' in labels:
+                        continue
+
+                    elif 'ON HOLD' in labels:
+                        # move on hold, remove from prev board
+                        requests.put('{}/cards/{}/idList'.format(trello_url, ids_draft[pr['id']], ), params={'value': trello_onhold, 'key': trello_key, 'token': trello_token})
+
+                    elif 'QA OK' in labels:
+                        # move approved, remove from prev board
+                        requests.put('{}/cards/{}/idList'.format(trello_url, ids_draft[pr['id']], ), params={'value': trello_approved, 'key': trello_key, 'token': trello_token})
+
+                    else:
+                        # move to open, remove from prev board
+                        requests.put('{}/cards/{}/idList'.format(trello_url, ids_draft[pr['id']], ), params={'value': trello_open, 'key': trello_key, 'token': trello_token})
 
             elif pr['id'] in ids_onhold:
                 if not pr['labels']:
@@ -101,7 +136,6 @@ def main():
                     else:
                         # move to open, remove from prev board
                         requests.put('{}/cards/{}/idList?'.format(trello_url, ids_onhold[pr['id']], ), params={'value': trello_open, 'key': trello_key, 'token': trello_token})
-
 
             elif pr['id'] in ids_approved:
                 if not pr['labels']:
@@ -173,6 +207,19 @@ def main():
 
                         response = requests.post('{}/cards'.format(trello_url), params=payload)
 
+                    # if new PR with label draft, create card on draft
+                    elif 'DRAFT' in labels:
+                        payload = {
+                            "idList": trello_draft,
+                            "name": pr['repository']['name'] + ' // ' + pr['title'],
+                            "desc": pr['id'],
+                            "urlSource": pr['html_url'],
+                            "key": trello_key,
+                            "token": trello_token
+                        }
+
+                        response = requests.post('{}/cards'.format(trello_url), params=payload)
+
                     # if new PR with any other label, create card on open
                     else:
                         payload = {
@@ -192,7 +239,7 @@ def main():
     for git_id in response_object:
         git_ids.append(int(git_id['id']))
 
-    trello_ids = dict(list(ids_open.items()) + list(ids_onhold.items()) + list(ids_approved.items()))
+    trello_ids = dict(list(ids_open.items()) + list(ids_draft.items()) + list(ids_onhold.items()) + list(ids_approved.items()))
 
     for id_ in trello_ids:
         if id_ not in git_ids:
