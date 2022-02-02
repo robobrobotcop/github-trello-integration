@@ -5,7 +5,7 @@ import pr_config
 
 def main():
 
-    github_url = 'https://api.github.com/orgs/billogram/issues?filter=all'
+    github_url = pr_config.github_url
     github_header = pr_config.github_header
 
     trello_url = 'https://api.trello.com/1'
