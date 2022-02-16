@@ -194,6 +194,10 @@ def main():
                     elif 'dependencies' in labels:
                         continue
 
+                    # if new PR with label automatic, ignore PR
+                    elif 'automatic' in labels:
+                        continue
+
                     # if new PR with label on hold, create card on on hold
                     elif 'ON HOLD' in labels:
                         payload = {
